@@ -1,51 +1,30 @@
-ENVIRONMENT = function (..., hash=FALSE)
-{	#use the more robust option instead?
-	objs = if (is.cleancall () ) collection (..., call=sys.call () )
-	else collection (..., resolve=FALSE)
-	if (ifst (objs) ) list.to.ENVIRONMENT (objs, hash)
-	else structure (extend (new.env (hash), "ENVIRONMENT"), hash=hash)
+ENVIRONMENT = function (..., call=sys.call (), hash=FALSE)
+{	if (!is.cleancall (call) ) stop ("couldn't create environment")
+	extend (new.env (hash), "ENVIRONMENT", attributes=LIST (..., call=call) )
 }
 
 is.ENVIRONMENT = function (e) inherits (e, "ENVIRONMENT")
-
-as.ENVIRONMENT = function (obj)
-{	if (is.ENVIRONMENT (obj) ) obj
-	else if (inherits (obj, "environment") ) extend (as.component (obj), "ENVIRONMENT")
-	else if (inherits (obj, "list") ) list.to.ENVIRONMENT (obj)
-	else stop ("as.ENVIRONMENT not applicable")
-}
-
-"==.ENVIRONMENT" = function (e1, e2) (format (e1) == format (e2) )
 is.hashed = function (e) attr (e, "hash")
 
-print.ENVIRONMENT = function (e, ...)
-{	obj = as.list (e)
-	if (if0 (obj) ) cat ("empty ENVIRONMENT\n")
-	else for (i in itobj (obj) )
-	{	cat ("$", names (obj) [i], "\n", sep="")
-		if (is.ENVIRONMENT (obj [[i]]) ) cat (format (obj [[i]]), "\n" )
-		else print (obj [[i]])
-	}
-}
+"==.ENVIRONMENT" = function (e1, e2) (format (e1) == format (e2) )
 
-list.to.ENVIRONMENT = function (obj, hash=FALSE)
-{	names = names (obj)
-	if (is.null (names) || any (names == "") )
-		stop ("ENVIRONMENT args must be named (or nameable)")
-	e = ENVIRONMENT (hash=hash)
-	for (i in itobj (obj) ) assign (names [i], obj [[i]], envir=e)
-	e
-}
-
-#possible error cloning envs containing lists containing envs
+#test further...
 clone.ENVIRONMENT = function (e, ...)
-	structure (as.ENVIRONMENT (ENVIRONMENT.clone (e, ...) ), hash=is.hashed (e) )
+{	f = ENVIRONMENT (hash=is.hashed (e) )
+	.environment.clone (e, f, ...)
+	f
+}
 
-clone.environment = function (e, ...) ENVIRONMENT.clone (e, ...)
+#test further...
+clone.environment = function (e, ...)
+{	f = ENVIRONMENT ()
+	.environment.clone (e, f, ...)
+	unclass (f)
+}
 
-ENVIRONMENT.clone = function (e, flags=objref (list () ) )
-{	f = new.env ()
-	flags [[length (flags) + 1]] = list (e, f)
+#note, functions assumed to have own environments
+.environment.clone = function (e, f, flags=objref (list () ) )
+{	flags [[length (flags) + 1]] = list (e, f)
 	if (length (e) > 0)
 	{	strs = ls (e)
 		for (str in strs)
@@ -56,15 +35,21 @@ ENVIRONMENT.clone = function (e, flags=objref (list () ) )
 				if (is.null (flagged) ) assign (str, clone (x, flags), envir=f)
 				else assign (str, flagged, envir=f)
 			}
-			else assign (str, x, envir=f)
+			else assign (str, clone (x), envir=f)
 		}
 	}
 	f
 }
 
-
-
-
+print.ENVIRONMENT = function (e, ...)
+{	obj = as.list (e)
+	if (if0 (obj) ) cat ("empty ENVIRONMENT\n")
+	else for (i in itobj (obj) )
+	{	cat ("$", names (obj) [i], "\n", sep="")
+		if (is.environment (obj [[i]]) ) cat (format (obj [[i]]), "\n" )
+		else print (obj [[i]])
+	}
+}
 
 
 

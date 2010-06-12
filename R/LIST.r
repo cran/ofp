@@ -1,27 +1,29 @@
-LIST = function (..., resolve=TRUE, call=sys.call () )
-{	#robust option?
-	objs = list (...)
-	if (resolve)
-	{	n = length (objs)
-		names = names (objs)
-		if (is.null (names) ) names = rep ("", n)
-		args = match.call (call=call) [-1]
-		for (i in iter (n) )
-		{	if (names [i] == "" && is.name (args [[i]]) )
-				names [i] = as.character (args [[i]])
-		}
-		names (objs) = names
+LIST = function (..., call=sys.call () )
+{	objs = list (...)
+	if (!is.cleancall (call) ) stop ("couldn't create list")
+	n = length (objs)
+	names = names (objs)
+	if (is.null (names) ) names = rep ("", n)
+	args = match.call (call=call) [-1]
+	for (i in iter (n) )
+	{	if (names [i] == "" && is.name (args [[i]]) )
+			names [i] = as.character (args [[i]])
 	}
-	#note: can't use extend here
-	#will cause infinite recursion
+	names (objs) = names
+	#note, can't use extend here, causes infinite recursion
 	structure (objs, class=c ("LIST", "list") )
 }
 
-#use double brackets instead?
-#would need to return LIST instead of list
-is.LIST = function (obj) inherits (obj, "LIST")
-"[.LIST" = function (obj, ...) obj [[...]]
-"[<-.LIST" = function (obj, ..., value) {obj [[...]] = value; obj}
+is.LIST = function (object) inherits (object, "LIST")
+
+clone.list = function (object, ...)
+{	for (i in 1:length (object) )
+		object [[i]] = clone (object [[i]])
+	object
+}
+
+#return LIST instead of list?
+#"[.LIST" = function (obj, ...) obj [...]
 
 
 

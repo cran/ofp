@@ -1,11 +1,26 @@
 \name{preview}
 \alias{preview}
-\title{preview a data.frame}
-\description{This function shows us concisely what is in a data.frame. This function is work in progress.}
+\alias{preview.TABLE}
+\alias{preview.MATRIX}
+\alias{preview.VECTOR}
+\alias{preview.data.frame}
+\alias{preview.matrix}
+\alias{preview.default}
+\title{preview object}
+\description{Preview functions.}
 \usage{
-preview (d)
+preview (\dots)
+\method{preview}{TABLE}(x, n=5, \dots)
+\method{preview}{MATRIX}(x, n=5, \dots)
+\method{preview}{VECTOR}(x, n=5, \dots)
+\method{preview}{data.frame}(x, n=5, \dots)
+\method{preview}{matrix}(x, n=5, \dots)
+\method{preview}{default}(x, \dots)
 }
 \arguments{
-\item{d}{.}
+\item{x}{.}
+\item{n}{.}
+\item{\dots}{.}
 }
+
 

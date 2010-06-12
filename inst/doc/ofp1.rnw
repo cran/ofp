@@ -1,10 +1,8 @@
-%\VignetteIndexEntry{ofp1_Introduction_to_The_ofp_Package}
+%\VignetteIndexEntry{ofp1_Enhanced_S3_Objects}
 \documentclass {article}
-\usepackage {maia}
-\lfoot{ofp 0.4.0}
+\usepackage {maia2}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
-
 \definecolor{rerr}{rgb}{0.5, 0.025, 0}
 \DefineVerbatimEnvironment{Serror}{Verbatim}{xleftmargin=2em,formatcom=\color{rerr}}
 
@@ -13,43 +11,34 @@
 <<echo=false>>=
 options(continue=" ")
 #options(SweaveHooks=list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))))
-library (ofp, warn=FALSE)
+library (ofp)
 @
 
-\mtitleb {Object-Functional Programming (ofp 0.4.0)}{Introduction to\\[0.25cm]The ``ofp'' Package (Draft)}
+\mtitle {ofp}{0.5.0}{Enhanced S3 Objects}
 
-\begin {abstract}
-This vignette introduces the ofp package, along with it's most fundamental features.
-\end {abstract}
+\mabstract {This vignette is the first vignette in the ofp package, an R package for object oriented R programming, with a dual focus on enhanced S3 programming and object-functional programming. Here, we focus on enhanced S3 objects, including enhanced constructors, enhanced methods, object references and enhanced primitives.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {Introduction}
 
-Despite the name of the package, the package's main focus is on R programming that's both object oriented and highly computational.
+The ofp package is a somewhat experimental package, that has gradually evolved over time to meet the needs of the author. These needs include the need to use object oriented programming in conjunction with computational mathematics (especially with functions).
 
-The package includes two frameworks for object oriented programming, firstly, a framework for environment-based programming (supporting object references), and secondly, a framework for object-functional programming. The package also includes enhanced list, environment, function and vector objects, as well as simplified processes for object construction, a work around to R check restrictions on S3 method arguments, object references and some other highly experimental features.
+Object oriented programming provides us with several advantages. Perhaps the most important advantage, is the power to create data structures that can closely match both real-world and theoretical entities. e.g. We could create a plane object with engine objects. Unfortunately, object oriented programming tends to create major obstacles for computational mathematics. Class-based systems are often verbose and restrictive, obscuring mathematical meaning and preventing certain implementations. Major mathematical objects, such as functions and vectors, are often poorly supported by object oriented systems.
 
-In many respects, ``object-functional programming'' represents the culmination of all the features in this package, hence the author's decision to name the package after it (plus she just didn't like the sound of the alternatives...).
+There are two major object oriented systems in R, S3 and S4. S3 has an inherent functional flavour and is very flexible, however only provides a weak form of classes and an obscure from of attributes. In contrast, S4 is very structured, class-based and verbose.
 
-The following sections of this vignette, discuss object construction, method arguments, object references and enhanced list and vector objects. The other vignettes discuss environment-based programming and object-functional programming, along with enhanced environment and function objects, respectively.
+In order to use object oriented programming with computational mathematics, the author felt that S3 was the most attractive starting point, given it's functional flavour and flexibility. However, she also felt that it was necessary to give it more class support, including enhanced constructors and enhanced methods.
 
-As mentioned above, the package also contains some other highly experimental features (intended as future utility classes/functions). Users are recommended not to use features, other than those discussed in the vignettes.
+Furthermore, she felt it necessary to create a system for object references, plus create enhanced mathematical primitives, that are objects in the object oriented sense, however still can be used in a simple mathematical kind of way.
 
-It's worth noting that the view of the author is, that in producing a language (or language extension or library) to support programming that's both object oriented and highly computational, such a language should:
-\begin {itemize}
-	\item Support code that is succinct, human-readable and flexible, in turn supporting a simple and relatively direct mapping from mathematical model to program code, where the program code is clearly reflective of the mathematical model.
-	\item Expanding on the point above, issues of elegance, robustness and consistency, should not be enforced by the language, rather be optional extras, applied if and only if a programmer so desires.
-	\item All mathematical primitives, should be ``objects'' and be capable of having attributes, that can be accessed in a simple way.
-\end {itemize}
-
-Note that we use the term ``attribute'' in it's more general object oriented way (not it's traditional R way). For lists and environments we will implement attributes as elements of those objects. For vectors and standard functions, they're R attributes. For enhanced functions, well, we'll get there... 
+Currently, the enhanced primitives include enhanced lists, enhanced environments, enhanced functions and enhanced vectors.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Succinct Constructors}
+\msec {Enhanced Constructors}
 
 A typical design pattern for a constructor, is a function (roughly speaking), that:
 \begin {enumerate}
@@ -59,7 +48,7 @@ A typical design pattern for a constructor, is a function (roughly speaking), th
 	\item Returns the object.
 \end {enumerate}
 
-So a superclass/subclass example might be:
+\noindent So a superclass/subclass example might be:
 <<>>=
 point = function (x=0, y=0)
 	structure (list (x=x, y=y), class=c ("point", "list") )
@@ -84,7 +73,7 @@ colouredcircle = function (x=0, y=0, r=1,
 }
 @
 
-Mostly that's fine. However, in the superclass constructor, explicitly naming each argument of the list is cumbersome. Secondly, the subclass constructors are way too long. Using the ofp package, we can instead write:
+\noindent Mostly that's fine. However, in the superclass constructor, explicitly naming each argument of the list is cumbersome. Secondly, the subclass constructors are way too long. Using the ofp package, we can instead write:
 <<>>=
 point = function (x=0, y=0) extend (LIST (x, y), "point")
 @
@@ -103,7 +92,7 @@ colouredcircle = function (x=0, y=0, r=1,
 colouredcircle (fill="blue")
 @
 
-Alternatively (for the one of subclass constructors):
+\noindent Alternatively (for the one of subclass constructors):
 <<>>=
 circle = function (x=0, y=0, r=1)
 {	obj = extend (point (x, y), "circle")
@@ -111,7 +100,7 @@ circle = function (x=0, y=0, r=1)
 }
 @
 
-We shall discuss LIST objects later. The import parts are the extend and implant functions, which serve to make our code succinct.
+\noindent We shall discuss LIST objects later. The import parts are the extend and implant functions, which serve to make our code succinct.
 
 The extend function, is intended to take an object (as it's first argument), the name of the subclass (as it's second argument), and potentially further arguments representing attributes for the object. Then it returns the extended object.
 
@@ -122,17 +111,16 @@ One restriction, is that we can not call either extend or implant using dots. Th
 extend (circle (x, y, r), "colouredcircle", ...)
 @
 
-One further word of warning. The view of the author, is that it's advisable to always extend the class attribute, by appending a value to it, rather than simply setting it to some scalar value.
+\noindent One further word of warning. The view of the author, is that it's advisable to always extend the class attribute, by appending a value to it, rather than simply setting it to some scalar value.
 
-Occasionally, R programs use calls such as inherits (obj, "something"), which may fail to produce the expected result, if we simply do something like class (obj) = "circle". 
+Occasionally, R programs use calls such as \verb|inherits (obj, "something")|, which may fail to produce the expected result, if we simply do something like \verb|class (obj) = "circle"|. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Unrestricted S3 Method Arguments}
+\msec {Enhanced Methods}
 
-In the previous section, we created a point class, not let's create a method, an intuitive one...
-
+In the previous section, we created a point class, now let's create a method, an intuitive one...
 <<>>=
 #a possible print method
 print.point = function (p, ...) cat ("x:", p$x, "\ny:", p$y, "\n")
@@ -163,11 +151,14 @@ print.point:
 print.point = function (x, ...) cat ("x:", x$x, "\ny:", x$y, "\n")
 @
 
-\noindent Now, R Check is content, however I don't want to call my object x, I want to call p. So the ofp package implements mask functions, that ``mask'' a subset of the standard generics. In principle, we should still include the dots argument, however otherwise we can use what ever arguments we want.
+\noindent Now, R Check is content, however I don't want to call my object x, I want to call p. So the ofp package implements mask functions, that ``mask'' a subset of the standard generics. In principle, we should still include the dots argument, however otherwise we can use what ever arguments we want. Currently (these may change) the ofp package masks print, summary, format, plot, lines and points. Now, if we load ofp, we can use p instead of x, and R Check is still content.
 
-Currently (these may change) the ofp package masks print, summary, format, plot, lines, points, fitted, residuals, as.list, as.data.frame and mean.
+One can mask other generics, say mean, using a declaration such as:
+<<>>=
+mean = function (...) base::mean (...)
+@
 
-Now, if we load ofp, we can use p instead of x, and R Check is still content.
+\noindent This will create some overhead, however using method despatch at all, creates overhead. R check will think that mean is a regular function, rather than a generic. Noting that calling mean.myobject will still call the mean generic.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
@@ -183,9 +174,9 @@ m
 m ()
 @
 
-To create multiple references to the same object:
+\noindent To create multiple references to the same object:
 <<>>=
-x = y = m
+q = m
 @
 
 \noindent Extraction methods have been implemented, to simplify working with references to lists and vectors. These also provide the main process for modifying the object.
@@ -195,12 +186,12 @@ m [1, 1] = 0
 m [1, 1]
 @
 
-Because it's a reference, dereference either x or y, will yield our modified matrix:
+\noindent Because it's a reference, dereferencing q, will yield our modified matrix:
 <<>>=
-x [1, 1]
+q [1, 1]
 @
 
-Noting that the following are not equivalent.
+\noindent Noting that the following are not equivalent.
 <<eval=false>>=
 m () [1, 1] = 1
 m [1, 1] = 1
@@ -211,42 +202,26 @@ m [1, 1] = 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {Enhanced Lists}
 
-We touched on enhanced lists earlier, namely the LIST object. The main purpose of LIST objects is to remove the need to explicitly name each argument in the list.
-
-So the following:
+We touched on enhanced lists earlier, namely the LIST object. The main purpose of LIST objects is to remove the need to explicitly name each argument in the list. So the following:
 <<>>=
 x = 1
 y = 2
-obj = list (x=x, y=y, z=3, 4)
+obj = list (x=x, y=y, z=3)
 obj
 @
 
-Can be simplified to (noting the LIST arguments):
+\noindent Can be simplified to (noting the LIST arguments):
 <<>>=
 x = 1
 y = 2
-obj = LIST (x, y, z=3, 4)
+obj = LIST (x, y, z=3)
 obj
 @
 
-Note that the current implementation is limited when calling LIST with dots. The extend and implant functions used earlier, actually make use of LIST and prohibit the use of dots. LIST itself, will allow dots, however automatic naming does not work.
-
-<<>>=
-#calling LIST with dots
-f = function (x, ...) LIST (x, ...)
-@
-
-<<>>=
-#calling LIST indirectly with named arguments
-#works...
-f (1, y=2)
-@
-
-<<>>=
-#calling LIST indirectly unnamed arguments
-#fails...
-y = 2
-f (1, y)
+\noindent Note that the current version prevents creating enhanced lists with dots as an argument (unless we specify the call object, which is slightly complex). This feature is may be changed in future versions. So the following is not allowed:
+<<eval=false>>=
+f = function (...) LIST (...)
+f (x, y)
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -254,9 +229,7 @@ f (1, y)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {Enhanced Vectors}
 
-The purpose of enhanced vectors is to support the use of vectors with attributes. R already allows vectors to have attributes, however the process is not as simple as accessing the elements of a list. So we provide enhanced vectors, using a list-like syntax. There are currently four kinds of enhanced vectors, LOGICAL, TEXT, INTEGER and REAL, where TEXT extends character vectors, and REAL extends numeric vectors. Rational and enhanced complex vectors may be added in the next version. Call, function, and polynomial vectors are being considered. 
-
-To create an INTEGER vector, with some attributes.
+The purpose of enhanced vectors is to support the use of vectors with attributes. R already allows vectors to have attributes, however the process is not as simple as accessing the elements of a list. So we provide enhanced vectors, using a list-like syntax. There are currently five kinds of enhanced vectors, TEXT, REAL, COMPLEX, INTEGER and LOGICAL, where TEXT extends character vectors, and REAL extends numeric vectors. To create an enhanced vector, with some attributes.
 <<>>=
 x = INTEGER (1:10, someattribute=TRUE, someotherattribute=FALSE)
 x
@@ -264,13 +237,12 @@ x$someattribute = FALSE
 x$someattribute
 @
 
-Alternatively, we can create a vector (including a matrix) by omitting the first argument and providing a dimension value.
+\noindent Alternatively, we can create a vector by omitting the first argument and providing a dimension value. Noting there are currently some problems using this approach to create matrices.
 <<>>=
 INTEGER (dimension=2)
-INTEGER (dimension=c (2, 2) )
 @
 
-The process to create the other vectors is the same. 
+\noindent The process to create the other vectors is the same.
 
 \end{document}
 

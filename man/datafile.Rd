@@ -1,7 +1,7 @@
 \name{datafile}
 \alias{datafile}
 \title{create a data.frame object from a csv file}
-\description{This function is designed to be an alternative to the data function. It returns an object, and uses (uncompressed) csv files.}
+\description{Experimental function, may be removed. Creates a data.frame object from a csv file.}
 \usage{
 datafile (pkg, file, global=FALSE, preview=FALSE, \dots)
 }
@@ -12,4 +12,5 @@ datafile (pkg, file, global=FALSE, preview=FALSE, \dots)
 \item{preview}{If true, generate a preview, using the preview function.}
 \item{\dots}{Arguments for a read.csv call.}
 }
+
 

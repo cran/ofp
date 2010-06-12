@@ -2,32 +2,24 @@
 \alias{ENVIRONMENT}
 \alias{is.ENVIRONMENT}
 \alias{is.hashed}
-\alias{as.ENVIRONMENT}
 \alias{==.ENVIRONMENT}
-\alias{compenv}
-\alias{is.compenv}
-\alias{as.compenv}
-\alias{==.compenv}
+\alias{print.ENVIRONMENT}
 \title{enhanced environments}
-\description{Enhanced environments, with ENVIRONMENT objects. The compenv versions are deprecated, do not use.}
+\description{Enhanced environments.}
 \usage{
-ENVIRONMENT(\dots, hash=FALSE)
+ENVIRONMENT(\dots, call=sys.call (), hash=FALSE)
 is.ENVIRONMENT(e)
 is.hashed (e)
-as.ENVIRONMENT(obj)
 \method{==}{ENVIRONMENT}(e1, e2)
-compenv(\dots, hash=FALSE)
-is.compenv(e)
-as.compenv(obj)
-\method{==}{compenv}(e1, e2)
+\method{print}{ENVIRONMENT}(e, \dots)
 }
 \arguments{
+\item{call}{The call used to resolve argument names.}
 \item{hash}{Whether or not the ENVIRONMENT is hashed. Refer to help for new.env for more information.}
 \item{e}{An ENVIRONMENT object.}
-\item{e1}{An environment.}
-\item{e2}{An environment.}
-\item{obj}{A list or an environment.}
-\item{\dots}{The environment's objects. Unless calling ENVIRONMENT directly, the arguments must be explicitly named, refer to is.cleancall for more information.}
+\item{e1}{.}
+\item{e2}{.}
+\item{\dots}{The environment's objects.}
 }
 
 

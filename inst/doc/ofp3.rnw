@@ -1,7 +1,6 @@
 %\VignetteIndexEntry{ofp3_Object-Functional_Programming}
 \documentclass {article}
-\usepackage {maia}
-\lfoot{ofp 0.4.0}
+\usepackage {maia2}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -11,29 +10,35 @@
 options(continue=" ")
 options(SweaveHooks=list(fig=function()
 par(mar=c(5.1, 4.1, 1.1, 2.1))))
-library (ofp, warn=FALSE)
+library (ofp)
 @
 
-\mtitleb {Object-Functional Programming (ofp 0.4.0)}{Object-Functional Programming (Draft)}
+\mtitle {ofp}{0.5.0}{Object-Functional Programming}
 
-\begin {abstract}
-This vignette presents a hybrid programming paradigm, that combines the strengths of object oriented programming with functional programming. The paradigm focuses on two main concepts: firstly, enhanced R functions, where functions are treated as objects, potentially with self-references and attributes; and secondly, function-valued functions.
-\end {abstract}
+\mabstract {This vignette is the third vignette in the ofp package, an R package for object oriented R programming, with a dual focus on enhanced S3 programming and object-functional programming. Here, we first consider the notion of object-functional programming, then consider enhanced functions.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {Introduction}
 
-At the time of writing this vignette, the author is not aware of any standard definition of, or approach to, ``object-functional programming''. Here we present a definition and an approach (via the ofp package), where we define object-functional programming as a programming paradigm that combines object oriented programming with functional programming.
+In the first vignette, we considered the idea of combining object oriented programming with computational mathematics, and sought to create an object oriented system within R, to support computational mathematics. In the second vignette, we considered environments, and how they support rich and powerful data structures.
 
-Arguably, the approach used here is closer to object oriented programming, in that we build our approach on top of object oriented principles, and do not strictly adhere to functional principles. However, like functional programming, functions are not only objects, they are the main kind of object. Whilst we allow computation in a variety of ways, we encourage computation via functions and support function-valued functions.
+Now we consider object-functional programming, a programming paradigm that combines the strengths of object oriented programming with the strengths of functional programming. Object-functional programming builds on the ideas in those earlier vignettes. It provides us with an extremely powerful system for using object oriented programming with computational mathematics. It also makes use of function environments.
 
-Rather than simply having a programming language that provides some degree of support for both object oriented programming and functional programming (which R, indeed has), or merely treat functions as objects (which is kind of trivial really), here we create enhanced functions, where functions (as serious objects) can have self-references and attributes (and potentially methods).
+The current view of the author, is that object-functional programming revolves around four concepts:
+\begin {enumerate}
+	\item Functions are objects. They can have and do anything that an object can have and do, constructors, inheritance and attributes.
+	\item Functions are the most important kind of objects. Object-functional programs should be designed to emphasize functions.
+	\item Functions can be evaluated directly.
+	\item Functions can return functions.
+\end {enumerate}
 
-A similar idea is seen in R's splinefun and ecdf functions. Here wish wish to develop this idea further.
+\noindent In principle, we allow both functions and methods. However, given that S3 methods are functions, that principle is a trivial one. Here, we do not require that functions are strictly functions in the mathematical sense, however this is still a desirable property. i.e. We allow functions to modify state, or to return different values given the same arguments.
 
-Note that in order to build a useful object-functional system, not only do we need the features described in this vignette, we also need more general object oriented features (such as those described in the other vignettes), as well as more general computational features (such as vectorised computation, which is not discussed).
+To support these ideas, we consider enhanced functions. These are extended R functions, that are given their own environment (which we shall regard as a container object). We can assign values to the container object, and regard those values as function attributes.
+
+A similar idea is seen in R's splinefun and ecdf functions.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
@@ -41,7 +46,6 @@ Note that in order to build a useful object-functional system, not only do we ne
 \msec {Enhanced Functions}
 
 Enhanced functions are created with the FUNCTION function. Creating FUNCTIONs is similar to creating VECTORs described in the first vignette. Rather than providing a seed vector, we provide a seed function, along with any attributes that we require. Here, is an example, for a lookup function.
-
 <<>>=
 #first, a suitable data structure to look things up in
 key = LETTERS [1:6]
@@ -57,8 +61,8 @@ f = function (key) table [match (key, d [,1]), 2]
 lookup = FUNCTION (f, d=table)
 @
 
-Calling the function.
 <<>>=
+#calling the function
 lookup ("D")
 @
 
@@ -69,35 +73,85 @@ f = FUNCTION (f, x=10)
 f (2)
 @
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Function Valued Functions}
-
-Here, we consider function valued functions achieved via setting attributes (it can also be achieved via symbolic manipulation). Here's a very simple example for creating a second degree polynomial.
+\noindent Noting that we can print the function and access the attributes directly
 <<>>=
-poly2 = function (a, b, c)
-{	f = function (x) a + b * x + c * x^2
-	FUNCTION (f, a, b, c)
-}
-p = poly2 (0, 0, 1)
-p (1:10)
-@
-
-Noting that FUNCTION, is also a function valued function.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {More on Attributes}
-
-Sometimes we want to access (including modify) the attributes of an enhanced function. This is done the same way as a list or environment. Using the function f, created earlier.
-
-<<>>=
+f
 f$x
 @
 
-\noindent We can include a function as (roughly speaking) an attribute, arguably as a method. However, there are some special issues which are still being explored.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\msec {Extending Functions}
+
+Extending a function could mean different things. It could mean extending it's class attribute and giving it further attributes. It could mean changing or extending the body of the function. It could even mean changing or extending it's attribute list.
+
+Here, we regard extending a function, as a combination of extending it's class attribute, potentially giving it more attributes, and potentially changing the body of the function. If we do not wish to change the body of the function, then we can use the extend function in the usual way.
+<<>>=
+f = function (x) x
+linef1 = extend (FUNCTION (f), "line")
+linef1
+@
+
+\noindent However, if we do indeed wish to change the body, then we need the extendf function, which is the same as the extend function, except that the third argument is a function with the new body.
+<<>>=
+f = function (x) a + b * x
+linef2 = extendf (linef1, "fancyline", f, a=0, b=1)
+linef2
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\msec {Function Constructors}
+
+It's possible to create function classes, with function constructors. These can also be considered function-valued functions. The previous example can be reformulated in several ways.
+<<>>=
+quad = function (a=0, b=1, c=0)
+{	f = function (x) a + b * x + c * x^2
+	extend (FUNCTION (f), "quad", a, b, c)
+}
+@
+
+<<>>=
+q = quad (0, 0, 1)
+<<>>=
+
+<<>>=
+q (1:10)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\msec {S3 Methods}
+
+We can create S3 methods for functions, in the usual way.
+<<>>=
+summary.quad = function (q, ...)
+	cat ("quad object\na:", q$a, "b:", q$b, "c:", q$c, "\n")
+@
+
+<<>>=
+summary (q)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\msec {Other Methods}
+
+It's possible for a function to contain other functions as attributes. It's also possible to set the environment of those functions to be equal to the primary function's environment.
+<<>>=
+f = function (x) g (x)
+g = function (x) 2 * x + k
+f = FUNCTION (f, g, k=2)
+environment (f$g) = environment (f)
+@
+
+<<>>=
+f (4)
+@
 
 \end{document}
 

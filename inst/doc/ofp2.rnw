@@ -1,7 +1,6 @@
 %\VignetteIndexEntry{ofp2_Environment-Based_Programming}
 \documentclass {article}
-\usepackage {maia}
-\lfoot{ofp 0.4.0}
+\usepackage {maia2}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -13,14 +12,12 @@
 <<echo=false>>=
 options(continue=" ")
 #options(SweaveHooks=list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))))
-library (ofp, warn=FALSE)
+library (ofp)
 @
 
-\mtitleb {Object-Functional Programming (ofp 0.4.0)}{Environment-Based Programming (Draft)}
+\mtitle {ofp}{0.5.0}{Environment-Based Programming}
 
-\begin {abstract}
-This vignette provides a basic introduction to working with R environments (that is, environment objects, not the R environment), with special emphasis on using environments as components in standard R programs.
-\end {abstract}
+\mabstract{This vignette is the second vignette in the ofp package, an R package for object oriented R programming, with a dual focus on enhanced S3 programming and object-functional programming. Here, we first provide a basic introduction to standard environments, then consider enhanced environments.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
@@ -260,7 +257,7 @@ Time difference of 0.04305983 secs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Enhancing and Extending Environments}
+\msec {Enhanced Environments}
 
 Extending environments is relatively simple, however it doesn't seem to be common practice. One reason we might want to extend an environment is to write our own print method.
 <<>>=

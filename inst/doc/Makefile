@@ -1,11 +1,15 @@
-makeall:
-	make makedev
+bldcmd=R CMD Sweave
+
+default:
+	make draft
 	make clean
 
-makedev:
+enhanced:
+	make draft bldcmd=makesweave
+
+draft:
 	make ofp1.pdf
 	make ofp2.pdf
-	make ofp3.pdf
 
 ofp1.pdf: ofp1.tex maia2.sty
 	pdflatex ofp1.tex
@@ -13,22 +17,23 @@ ofp1.pdf: ofp1.tex maia2.sty
 ofp2.pdf: ofp2.tex maia2.sty
 	pdflatex ofp2.tex
 
-ofp3.pdf: ofp3.tex maia2.sty
-	pdflatex ofp3.tex
-
 ofp1.tex: ofp1.rnw
-	R CMD Sweave ofp1.rnw
+	$(bldcmd) ofp1.rnw
 
 ofp2.tex: ofp2.rnw
-	R CMD Sweave ofp2.rnw
+	$(bldcmd) ofp2.rnw
 
-ofp3.tex: ofp3.rnw
-	R CMD Sweave ofp3.rnw
+init:
+	rm -f /tmp/makesweavepipe
+	mkfifo /tmp/makesweavepipe
+	echo -e "0\n" > /tmp/makesweavestatus
+	makesweave -i &
 
 clean:
-	rm *.tex
-	rm *.aux
-	rm *.log
-	rm tmp*
-	rm Rplots*
+	rm -f *.tex
+	rm -f *.aux
+	rm -f *.log
+	rm -f tmp*
+	rm -f Rplots*
+
 

@@ -1,5 +1,3 @@
-#mask functions
-#not sure about length
 print = function (...) base::print (...)
 summary = function (...) base::summary (...)
 format = function (...) base::format (...)
@@ -7,10 +5,10 @@ plot = function (...) graphics::plot (...)
 lines = function (...) graphics::lines (...)
 points = function (...) graphics::points (...)
 
-#new
+fit = function (...) UseMethod ("fit")
 clone = function (...) UseMethod ("clone")
-preview = function (...) UseMethod ("prevew")
-clone.default = function (object, ...) object
-preview.default = function (x, ...) x
+preview = function (...) UseMethod ("preview")
 
+clone.default = function (x, ...) x
+preview.default = function (x, ...) x
 

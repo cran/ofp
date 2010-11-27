@@ -13,13 +13,15 @@ clone (\dots)
 \method{clone}{ENVIRONMENT}(e, \dots)
 \method{clone}{environment}(e, \dots)
 \method{clone}{FUNCTION}(f, \dots)
-\method{clone}{default}(object, \dots)
+\method{clone}{default}(x, \dots)
 }
 \arguments{
+\item{x}{.}
 \item{object}{.}
 \item{e}{.}
 \item{f}{.}
 \item{\dots}{.}
 }
+
 
 

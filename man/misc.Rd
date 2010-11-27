@@ -1,4 +1,5 @@
 \name{misc}
+\alias{fit}
 \alias{ifst}
 \alias{if0}
 \alias{if1}
@@ -7,6 +8,7 @@
 \title{some experimental functions}
 \description{These functions are being reviewed, and may be removed.}
 \usage{
+fit (\dots)
 ifst (obj)
 if0 (obj)
 if1 (obj)
@@ -17,5 +19,8 @@ itobj (obj)
 \item{obj}{.}
 \item{n}{.}
 \item{min}{.}
+\item{\dots}{.}
 }
+
+
 

@@ -1,4 +1,4 @@
-bldcmd=R CMD Sweave
+bldcmd=($R_HOME)/bin/R CMD Sweave
 
 default:
 	make draft

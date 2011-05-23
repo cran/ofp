@@ -1,6 +1,7 @@
 \name{FUNCTION}
 \alias{FUNCTION}
 \alias{is.FUNCTION}
+\alias{clone.FUNCTION}
 \alias{extendf}
 \alias{print.FUNCTION}
 \alias{$.FUNCTION}
@@ -12,6 +13,7 @@ FUNCTION (f, \dots, call)
 is.FUNCTION (f)
 extendf (f, subclass, g, \dots, attributes)
 \method{print}{FUNCTION}(f, \dots)
+\method{clone}{FUNCTION}(f, \dots)
 \method{$}{FUNCTION}(f, name)
 \method{$}{FUNCTION}(f, name) <- value
 }
@@ -25,6 +27,5 @@ extendf (f, subclass, g, \dots, attributes)
 \item{value}{.}
 \item{\dots}{.}
 }
-
 
 

@@ -1,16 +1,16 @@
 Package: ofp
 Title: Object-Functional Programming
-Version: 0.6.1
-Date: 2011-04-12
+Version: 0.7.0
+Date: 2011-23-05
 Author: Charlotte Maia
 Maintainer: Charlotte Maia <maiagx@gmail.com>
-Description: This package is likely to be split into two smaller
-        packages, asap. One package (called ofp), for mixing object
-        oriented programming with functional programming, mainly
-        through the use of enhanced function objects. The other
-        package, for providing a more general abstraction layer for
-        object oriented programming.
+Description: A package for object-functional programming, a hybrid
+        programming paradigm, that mixes features of object oriented
+        programming and functional programming. There's a strong
+        emphasis on enhanced functions, that have the properties of
+        both objects and functions.
 License: GPL (>= 2)
-Packaged: 2011-04-12 08:35:23 UTC; maia
+Depends: s3x
+Packaged: 2011-05-23 06:03:16 UTC; maia
 Repository: CRAN
-Date/Publication: 2011-04-13 09:25:57
+Date/Publication: 2011-05-25 06:52:16

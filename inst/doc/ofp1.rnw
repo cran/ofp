@@ -1,289 +1,136 @@
-%\VignetteIndexEntry{ofp1_Enhanced_S3_Programming}
+%\VignetteIndexEntry{ofp1_Object-Functional_Programming}
 \documentclass {article}
 \usepackage {maia2}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp-ofp1}
-\definecolor{rerr}{rgb}{0.5, 0.025, 0}
-\DefineVerbatimEnvironment{Serror}{Verbatim}{xleftmargin=2em,formatcom=\color{rerr}}
 
 \begin{document}
 
 <<echo=false>>=
 options(continue=" ")
-#options(SweaveHooks=list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))))
+options(SweaveHooks=list(fig=function()
+par(mar=c(5.1, 4.1, 1.1, 2.1))))
 library (ofp)
 @
 
-\mtitle {ofp}{0.6.0}{Enhanced S3 Programming\\(Draft)}
+\mtitle {ofp}{0.7.0}{Object-Functional Programming\\(Draft)}
 
-\mabstract {This vignette introduces the first part of the ofp package, a framework for enhanced S3 programming.}
+\mabstract {This vignette introduces the ofp package, for object-functional programming. Object-functional programming is a programming paradigm that mixes features of object oriented programming with features of functional programming. There's a strong emphasis on enhanced functions, that have the properties of both objects and functions.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
+\msec {Notes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Introduction}
-
-There are two major object oriented systems in R, S3 and S4. Arguably, S3 deviates from conventional object oriented programming, however is relatively simple, has an inherent functional flavour and is very flexible. In contrast, S4 is relatively complex, very structured and very verbose.
-
-The first part of this package is designed to enhance S3 capabilities, firstly, giving it a more standard object oriented flavour, and secondly, emphasizing simplicity and readability.
-
-The largest section of this vignette discusses enhanced primitives, which include:
 \begin {itemize}
-	\item Enhanced lists.
-	\item Enhanced environments.
-	\item Enhanced functions.
-	\item Enhanced vectors.
+	\item \textbf {This package has been reduced, with previous features shifted to the s3x package.}
+	\item \textbf {Tools for differentiation, integration, smoothing and interpolation,\\ planned for ofp 0.8.}
+	\item \textbf {This package is mildly unstable and contains several experimental features.}
 \end {itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
+\msec {Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Simplified Constructors}
+This package attempts to create a hybrid programming paradigm (which the author likes to refer to as, object-functional programming), that mixes features of object oriented programming with features of functional programming. Note that the approach use here, is slightly closer to object oriented programming. 
 
-A typical design pattern for a constructor, is a function (roughly speaking), that:
-\begin {enumerate}
-	\item Creates an instance of the class (including creating an instance of any superclass, where often the superclass constructor is the first call within function).
-	\item Extends the class attribute (for S3).
-	\item Sets any further attributes.
-	\item Returns the object.
-\end {enumerate}
+In object oriented programming, objects are constructed, they can be extended, and can have methods and attributes. In functional programming, data is manipulated by calling functions, that map input data to output data. Here, we define enhanced functions as objects (with standard features of objects, such as attributes), that are also functions (though not necessarily pure functions), and are called using the same syntax as typical functions (e.g. f (x) ).
 
-\noindent So a superclass/subclass example might be:
-<<>>=
-point = function (x=0, y=0)
-	structure (list (x=x, y=y), class=c ("point", "list") )
-@
+A major application of object-functional programming is modelling functions defined via interpolation. The author is considering several other applications, and is hoping to discuss them more in the next revision.
 
-<<>>=
-circle = function (x=0, y=0, r=1)
-{	obj = point (x, y)
-	class (obj) = c ("circle", class (obj) )
-	obj
-}
-@
+As with the s3x package, here object attribute, means any (nested) object, accessible via the \$ operator, it doesn't refer to R attributes, as such.
 
-<<>>=
-colouredcircle = function (x=0, y=0, r=1,
-	line.colour="black", fill.colour="white")
-{	obj = circle (x, y, r)
-	class (obj) = c ("colouredcircle", class (obj) )
-	obj$line.colour = line.colour
-	obj$fill.colour = fill.colour
-	obj
-}
-@
-
-\noindent Mostly that's fine. However, in the superclass constructor, explicitly naming each argument of the list is cumbersome. Secondly, the subclass constructors are way too long. Using the ofp package, we can instead write:
-<<>>=
-point = function (x=0, y=0) extend (LIST (x, y), "point")
-@
-
-<<>>=
-circle = function (x=0, y=0, r=1) extend (point (x, y), "circle", r)
-@
-
-<<>>=
-colouredcircle = function (x=0, y=0, r=1,
-	line.colour="black", fill.colour="white")
-	extend (circle (x, y, r), "colouredcircle", line.colour, fill.colour)
-@
-
-<<>>=
-colouredcircle (fill="blue")
-@
-
-\noindent Alternatively (for the one of subclass constructors):
-<<>>=
-circle = function (x=0, y=0, r=1)
-{	obj = extend (point (x, y), "circle")
-	implant (obj, r)
-}
-@
-
-\noindent We shall discuss LIST objects later. The import parts are the extend and implant functions, which serve to make our code succinct.
-
-The extend function, is intended to take an object (as it's first argument), the name of the subclass (as it's second argument), and potentially further arguments representing attributes for the object. Then it returns the extended object.
-
-The implant function is almost identical to the extend function, except that it doesn't take the name of a subclass as an argument, and doesn't adjust the class attribute.
-
-One restriction, is that we can not call either extend or implant using dots. The following is not allowed:
-<<eval=false>>=
-extend (circle (x, y, r), "colouredcircle", ...)
-@
-
-\noindent One further word of warning. The view of the author, is that it's advisable to always extend the class attribute, by appending a value to it, rather than simply setting it to some scalar value.
-
-Occasionally, R programs use calls such as \verb|inherits (obj, "something")|, which may fail to produce the expected result, if we simply do something like \verb|class (obj) = "circle"|.
+Currently, object attributes are implemented as elements of the function's environment. The same approach is used in R's splinefun and ecdf functions. Note that this approach is being re-considered and may be changed in the near future.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Object References}
+\msec {Enhanced Functions}
 
-There are many situations where we wish to create an object reference. The objref function allows us to do this (noting that environments, discussed later, provide a more efficient and flexible system). To create an object reference, we call objref with an object as it's single argument. The reference that is returned, it actually a function itself, which when evaluated (with no arguments) returns the object.
-
-Let's say we want an object reference to a matrix.
+Enhanced functions are created with the FUNCTION function. We provide a seed function, along with any attributes that we require. Here's an example, for a lookup function.
 <<>>=
-m = objref (matrix (1:16, nrow=4) )
-m
-m ()
+#first, a suitable data structure to look things up in
+key = LETTERS [1:6]
+value = c ("A's value", "B's value", "C's value",
+	"D's value", "E's value", "F's value")
+table = data.frame (key, value, stringsAsFactors=FALSE)
+table
 @
 
-\noindent To create multiple references to the same object:
 <<>>=
-q = m
+#second, the function itself
+f = function (key) table [match (key, d [,1]), 2]
+lookup = FUNCTION (f, d=table)
 @
 
-\noindent Extraction methods have been implemented, to simplify working with references to lists and vectors. These also provide the main process for modifying the object.
 <<>>=
-m [1, 1]
-m [1, 1] = 0
-m [1, 1]
+#calling the function
+lookup ("D")
 @
 
-\noindent Because it's a reference, dereferencing q, will yield our modified matrix:
+\noindent Sometimes me may wish to have a function, where an attribute name is the same as an argument name. Probably not the best design pattern. However it can still be achieved using a self reference.
 <<>>=
-q [1, 1]
+f = function (x) .$x + x
+f = FUNCTION (f, x=10)
+f (2)
 @
 
-\noindent Noting that the following are not equivalent.
-<<eval=false>>=
-m () [1, 1] = 1
-m [1, 1] = 1
+\noindent Noting that we can print the function and access the attributes directly
+<<>>=
+f
+f$x
 @
-
-\noindent Note that the objref system may be changed in future versions.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Enhanced Primitives}
+\msec {Extending Functions}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection* {Enhanced Lists}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Extending a function could mean different things. It could mean extending it's class attribute and giving it further attributes. It could mean changing or extending the body of the function. It could even mean changing or extending it's attribute list.
 
-We touched on enhanced lists earlier, namely the LIST object. The main purpose of LIST objects is to remove the need to explicitly name each argument in the list. So the following:
+Here, we regard extending a function, as a combination of extending it's class attribute, potentially giving it more attributes, and potentially changing the body of the function. If we do not wish to change the body of the function, then we can use the extend function in the usual way.
 <<>>=
-x = 1
-y = 2
-obj = list (x=x, y=y, z=3)
-obj
+f = function (x) x
+linef1 = extend (FUNCTION (f), "line")
+linef1
 @
 
-\noindent Can be simplified to (noting the LIST arguments):
+\noindent However, if we do indeed wish to change the body, then we need the extendf function, which is the same as the extend function, except that the third argument is a function with the new body.
 <<>>=
-x = 1
-y = 2
-obj = LIST (x, y, z=3)
-obj
+f = function (x) a + b * x
+linef2 = extendf (linef1, "fancyline", f, a=0, b=1)
+linef2
 @
-
-\noindent Note that the current version prevents creating enhanced lists with dots as an argument (unless we specify the call object, see the Rd file, which is slightly complex). This feature is may be changed in future versions. So the following is not allowed:
-<<eval=false>>=
-f = function (...) LIST (...)
-f (x, y)
-@
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection* {Enhanced Environments}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Extending environments is relatively simple, however it doesn't seem to be common practice. One reason we might want to extend an environment is to write our own print method.
-<<>>=
-e = extend (new.env (), "myenv")
-print.myenv = function (e) print ("a myenv object")
-e
-@
-
-\noindent The ofp package, also provides ENVIRONMENT (enhanced environments) objects, that extend environments. These provide workarounds to some of the limitations of standard environments. Furthermore, ENVIRONMENT objects can be extended. A problem with using standard environments is that creating an environment required separate calls, for each assignment. Using ENVIRONMENT objects we can create environments in a similar way to lists. Presently, ENVIRONMENT objects, print themselves, by calling as.list, however it's not recursive (so nested environments print the usual way).
-<<>>=
-e = ENVIRONMENT (x=1, y=2, z=3)
-e
-@
-
-\noindent We can compare two ENVIRONMENT objects for equality:
-<<>>=
-e = f = ENVIRONMENT ()
-g = ENVIRONMENT ()
-e == f
-e == g
-@
-
-\noindent Extending ENVIRONMENT objects is trivial:
-<<>>=
-e = extend (ENVIRONMENT (), "myenv2")
-@
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection* {Enhanced Functions}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Enhanced functions, are created with the FUNCTION function. This is discussed in the next vignette.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection* {Enhanced Vectors}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-The purpose of enhanced vectors is to support the use of vectors with attributes. R already allows vectors to have attributes, however the process is not as simple as accessing the elements of a list. So we provide enhanced vectors, using list-like syntax. There are currently five kinds of enhanced vectors, TEXT, REAL, COMPLEX, INTEGER and LOGICAL, where TEXT extends character vectors, and REAL extends numeric vectors. To create an enhanced vector, with some attributes.
-<<>>=
-x = INTEGER (1:10, someattribute=TRUE, someotherattribute=FALSE)
-x
-x$someattribute = FALSE
-x$someattribute
-@
-
-\noindent Alternatively, we can create a vector by omitting the first argument and providing a dimension value. Noting that there are currently some problems using this approach to create matrices.
-<<>>=
-INTEGER (dimension=2)
-@
-
-\noindent The process to create the other vectors is the same.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Simplified Methods}
+\msec {S3 Methods}
 
-In the earlier section on constructors, we created a point class, now let's create a method, an intuitive one...
+We can create S3 methods for functions, in the usual way.
 <<>>=
-#a possible print method
-print.point = function (p, ...) cat ("x:", p$x, "\ny:", p$y, "\n")
+print.fancyline = function (f, ...)
+	cat ("fancyline:", f$a, "+", f$b, "x\n")
 @
 
 <<>>=
-p = point (0, 0)
-p
+#same as print (linef2)
+linef2
 @
 
-\noindent At face value, if works fine. However, let's try and make a package...
-\begin{Schunk}
-\begin{Sinput}
-> R CMD check My1stRPackage
-\end{Sinput}
-\begin{Serror}
-* checking S3 generic/method consistency ... WARNING
-print:
-  function(x, ...)
-print.point:
-  function(p)
-\end{Serror}
-\end{Schunk}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\msec {Nested Functions}
 
-\noindent After a few changes...
+It's possible for a function to contain other functions (as attributes). If the child function needs to access the parent function's attributes, then the environment of the child function needs to be set the environment of the parent function.
 <<>>=
-#another possible print method
-print.point = function (x, ...) cat ("x:", x$x, "\ny:", x$y, "\n")
+f = function (x) g (x)
+g = function (x) 2 * x + k
+f = FUNCTION (f, g, k=2)
+environment (f$g) = environment (f)
 @
 
-\noindent Now, R Check is content, however I don't want to call my object x, I want to call p. So the ofp package implements mask functions, that ``mask'' a subset of the standard generics. In principle, we should still include the dots argument, however otherwise we can use what ever arguments we want. Currently (these may change) the ofp package masks print, summary, format, plot, lines and points. Now, if we load ofp, we can use p instead of x, and R Check is still content.
-
-One can mask other generics, say mean, using a declaration such as:
 <<>>=
-mean = function (...) base::mean (...)
+f (4)
 @
-
-\noindent This will create some overhead, however using method despatch at all, creates overhead. R check will think that mean is a regular function, rather than a generic. Noting that calling mean.myobject will still call the mean generic.
 
 \end{document}
 

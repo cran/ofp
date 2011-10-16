@@ -1,8 +1,0 @@
-bldcmd=R CMD Sweave
-
-ofp1.pdf: ofp1.tex maia2.sty
-	pdflatex ofp1.tex
-
-ofp1.tex: ofp1.rnw
-	$(bldcmd) ofp1.rnw
-

@@ -1,0 +1,2 @@
+voidf = function (x) {}
+
